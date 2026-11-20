@@ -333,20 +333,20 @@ SELECT 999999999, 'TESTE-0001',
 
 SELECT * FROM dw.carga_log WHERE row_nk = 999999999;
 
-/* TESTE COM LINHA INVALIDA 
-INSERT INTO dw.fact_sales
-    (row_nk, order_nk, order_date_sk, ship_date_sk,
-     customer_sk, product_sk, location_sk, ship_mode_sk, sales, ship_days)
-SELECT 999999998, 'TESTE-0002',
-       (SELECT MIN(date_sk)      FROM dw.dim_date),
-       (SELECT MIN(date_sk)      FROM dw.dim_date),
-       (SELECT MIN(customer_sk)  FROM dw.dim_customer),
-       (SELECT MIN(product_sk)   FROM dw.dim_product),
-       (SELECT MIN(location_sk)  FROM dw.dim_location),
-       (SELECT MIN(ship_mode_sk) FROM dw.dim_ship_mode),
-       0, 2;
+--  TESTE COM LINHA INVALIDA 
+-- INSERT INTO dw.fact_sales
+--     (row_nk, order_nk, order_date_sk, ship_date_sk,
+--      customer_sk, product_sk, location_sk, ship_mode_sk, sales, ship_days)
+-- SELECT 999999998, 'TESTE-0002',
+--        (SELECT MIN(date_sk)      FROM dw.dim_date),
+--        (SELECT MIN(date_sk)      FROM dw.dim_date),
+--        (SELECT MIN(customer_sk)  FROM dw.dim_customer),
+--        (SELECT MIN(product_sk)   FROM dw.dim_product),
+--        (SELECT MIN(location_sk)  FROM dw.dim_location),
+--        (SELECT MIN(ship_mode_sk) FROM dw.dim_ship_mode),
+--        0, 2;
        
-       ERROR:  Venda rejeitada (row_nk=999999998, order_nk=TESTE-0002): valor 0.00 deve ser maior que zero*/
+--        ERROR:  Venda rejeitada (row_nk=999999998, order_nk=TESTE-0002): valor 0.00 deve ser maior que zero
 
 -- esvaziar o log, recarregar e conferir
 TRUNCATE dw.carga_log RESTART IDENTITY;
@@ -357,3 +357,104 @@ SELECT (SELECT COUNT(*) FROM dw.carga_log)  AS linhas_no_log,
 
 -- LINHAS NO LOG = 9800
 -- LINHAS NA FATO = 9800
+
+-- ENUNCIADO 16
+SELECT l.region,
+       p.category,
+       COUNT(DISTINCT f.order_nk) AS pedidos,
+       COUNT(*)                   AS itens,
+       SUM(f.sales)               AS receita
+FROM dw.fact_sales f
+JOIN dw.dim_location l ON l.location_sk = f.location_sk
+JOIN dw.dim_product  p ON p.product_sk  = f.product_sk
+GROUP BY l.region, p.category
+ORDER BY receita DESC;
+/*
+ region  |    category     | pedidos | itens |  receita  
+---------+-----------------+---------+-------+-----------
+ East    | Technology      |     436 |   527 | 263116.59
+ West    | Technology      |     483 |   589 | 247404.95
+ West    | Furniture       |     582 |   691 | 245348.36
+ West    | Office Supplies |    1150 |  1860 | 217466.46
+ East    | Furniture       |     480 |   591 | 206461.36
+ East    | Office Supplies |    1048 |  1667 | 199940.90
+ Central | Technology      |     348 |   408 | 168739.19
+ Central | Office Supplies |     865 |  1399 | 163590.15
+ Central | Furniture       |     393 |   470 | 160317.56
+ South   | Technology      |     252 |   289 | 148195.21
+--More--
+*/
+
+-- ENUNCIADO 17
+SELECT m.ship_mode,
+       COUNT(*)                     AS itens,
+       ROUND(AVG(f.ship_days), 1)   AS media_ship_days,
+       MIN(f.ship_days)             AS menor_ship_days,
+       MAX(f.ship_days)             AS maior_ship_days
+FROM dw.fact_sales f
+JOIN dw.dim_ship_mode m ON m.ship_mode_sk = f.ship_mode_sk
+GROUP BY m.ship_mode
+ORDER BY AVG(f.ship_days) ASC;
+
+/*
+   ship_mode    | itens | media_ship_days | menor_ship_days | maior_ship_days 
+----------------+-------+-----------------+-----------------+-----------------
+ Same Day       |   538 |             0.0 |               0 |               1
+ First Class    |  1501 |             2.2 |               1 |               4
+ Second Class   |  1902 |             3.2 |               1 |               5
+ Standard Class |  5859 |             5.0 |               3 |               7
+*/
+
+-- ENUNCIADO 18
+WITH receita_cliente AS (
+    SELECT c.customer_sk,
+           c.customer_name,
+           c.segment,
+           SUM(f.sales) AS receita
+    FROM dw.fact_sales f
+    JOIN dw.dim_customer c ON c.customer_sk = f.customer_sk
+    GROUP BY c.customer_sk, c.customer_name, c.segment
+)
+SELECT customer_name,
+       segment,
+       receita,
+       ROUND(100.0 * receita / SUM(receita) OVER (), 2) AS participacao_pct
+FROM receita_cliente
+ORDER BY receita DESC
+LIMIT 10;
+/*
+   customer_name    |   segment   | receita  | participacao_pct 
+--------------------+-------------+----------+------------------
+ Sean Miller        | Home Office | 25043.07 |             1.11
+ Tamara Chand       | Corporate   | 19052.22 |             0.84
+ Raymond Buch       | Consumer    | 15117.35 |             0.67
+ Tom Ashbrook       | Home Office | 14595.62 |             0.65
+ Adrian Barton      | Consumer    | 14473.57 |             0.64
+ Ken Lonsdale       | Consumer    | 14175.23 |             0.63
+ Sanjit Chand       | Consumer    | 14142.34 |             0.63
+ Hunter Lopez       | Consumer    | 12873.30 |             0.57
+ Sanjit Engle       | Consumer    | 12209.44 |             0.54
+ Christopher Conant | Consumer    | 12129.08 |             0.54
+(10 rows)
+*/
+
+-- ENUNCIADO 19
+SELECT od.year                                      AS ano_pedido,
+       COUNT(*)                                     AS itens,
+       SUM(f.sales)                                 AS receita,
+       COUNT(*) FILTER (WHERE sd.is_weekend)        AS itens_enviados_fim_de_semana
+FROM dw.fact_sales f
+JOIN dw.dim_date od ON od.date_sk = f.order_date_sk
+JOIN dw.dim_date sd ON sd.date_sk = f.ship_date_sk
+GROUP BY od.year
+ORDER BY od.year;
+
+/*
+ ano_pedido | itens |  receita  | itens_enviados_fim_de_semana 
+------------+-------+-----------+------------------------------
+       2015 |  1953 | 479856.27 |                          632
+       2016 |  2055 | 459435.94 |                          661
+       2017 |  2534 | 600192.80 |                          812
+       2018 |  3258 | 722051.96 |                          867
+(4 rows)
+*/
