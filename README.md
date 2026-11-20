@@ -21,3 +21,7 @@
 - ### Enunciado 4
 - Regra 1 (PostgreSQL, porta 5432, origem 0.0.0.0/0): deixa o psql do CloudShell, que vem da internet, conectar ao banco. Sem ela, o psql não conecta e termina com erro de tempo esgotado (connection timed out).
 - Regra 2 (All TCP, origem o próprio grupo sg-XXXXXXXX): deixa os recursos do mesmo grupo, como as placas de rede (ENIs) que o Glue cria, conversarem entre si e com o banco. Sem ela, o teste de conexão do Glue falha com tempo esgotado, mesmo com o banco saudável.
+
+### Enunciado 6
+- Por que o S3 usa endpoint de gateway: O S3 usa esse tipo de endpoint porque ele permite que a comunicação com o serviço aconteça diretamente pela rede interna da AWS, sem precisar passar pela internet. Além disso, não gera custo adicional por hora. Já o STS e o Secrets Manager utilizam outro tipo de endpoint, que cria uma conexão privada dentro da rede.
+- Se o DNS privado ficar desligado: Se o DNS privado estiver desligado, o serviço será acessado pelo endereço público, em vez do endereço privado. Como a nossa sub-rede não tem acesso à internet por meio de um NAT Gateway, o job não consegue se conectar ao serviço e acaba apresentando um erro de tempo esgotado (timeout).
