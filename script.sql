@@ -168,3 +168,111 @@ CREATE INDEX ix_fs_customer   ON dw.fact_sales(customer_sk);
 CREATE INDEX ix_fs_product    ON dw.fact_sales(product_sk);
 CREATE INDEX ix_fs_location   ON dw.fact_sales(location_sk);
 CREATE INDEX ix_fs_ship_mode  ON dw.fact_sales(ship_mode_sk);
+
+-- ENUNCIADO 14 (PROCEDURE PARA CARREGAR O DW)
+CREATE OR REPLACE PROCEDURE dw.carrega_dw()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_linhas   BIGINT;
+    v_fato     BIGINT;
+    v_staging  BIGINT;
+BEGIN
+    -- (a) esvazia a fato e as quatro dimensões (dim_date fica intacta)
+    TRUNCATE dw.fact_sales, dw.dim_customer, dw.dim_product,
+             dw.dim_location, dw.dim_ship_mode
+             RESTART IDENTITY CASCADE;
+
+    -- (b) Regra para chaves naturais com mais de um valor de atributo:
+    -- usa-se o MENOR valor em ordem alfabética (MIN). A escolha é
+    -- determinística e repetível: a mesma staging gera sempre as mesmas
+    -- dimensões, independentemente da ordem em que o Spark gravou as linhas.
+
+    INSERT INTO dw.dim_ship_mode (ship_mode)
+    SELECT DISTINCT ship_mode
+    FROM staging.sales
+    ORDER BY ship_mode;
+    GET DIAGNOSTICS v_linhas = ROW_COUNT;
+    RAISE NOTICE 'dim_ship_mode: % linhas inseridas', v_linhas;
+
+    INSERT INTO dw.dim_customer (customer_id, customer_name, segment)
+    SELECT customer_id, MIN(customer_name), MIN(segment)
+    FROM staging.sales
+    GROUP BY customer_id
+    ORDER BY customer_id;
+    GET DIAGNOSTICS v_linhas = ROW_COUNT;
+    RAISE NOTICE 'dim_customer: % linhas inseridas', v_linhas;
+
+    INSERT INTO dw.dim_product (product_id, product_name, category, sub_category)
+    SELECT product_id, MIN(product_name), MIN(category), MIN(sub_category)
+    FROM staging.sales
+    GROUP BY product_id
+    ORDER BY product_id;
+    GET DIAGNOSTICS v_linhas = ROW_COUNT;
+    RAISE NOTICE 'dim_product: % linhas inseridas', v_linhas;
+
+    INSERT INTO dw.dim_location (country, state, city, postal_code, region)
+    SELECT country, state, city, postal_code, MIN(region)
+    FROM staging.sales
+    GROUP BY country, state, city, postal_code
+    ORDER BY country, state, city, postal_code;
+    GET DIAGNOSTICS v_linhas = ROW_COUNT;
+    RAISE NOTICE 'dim_location: % linhas inseridas', v_linhas;
+
+    -- (c) fato: surrogate keys por JOIN; chaves de data por formatação
+    INSERT INTO dw.fact_sales
+        (row_nk, order_nk, order_date_sk, ship_date_sk,
+         customer_sk, product_sk, location_sk, ship_mode_sk,
+         sales, ship_days)
+    SELECT s.row_id,
+           s.order_id,
+           to_char(s.order_date, 'YYYYMMDD')::INT,
+           to_char(s.ship_date,  'YYYYMMDD')::INT,
+           c.customer_sk,
+           p.product_sk,
+           l.location_sk,
+           m.ship_mode_sk,
+           s.sales,
+           (s.ship_date - s.order_date)
+    FROM staging.sales s
+    JOIN dw.dim_customer  c ON c.customer_id = s.customer_id
+    JOIN dw.dim_product   p ON p.product_id  = s.product_id
+    JOIN dw.dim_location  l ON l.country     = s.country
+                           AND l.state       = s.state
+                           AND l.city        = s.city
+                           AND l.postal_code = s.postal_code
+    JOIN dw.dim_ship_mode m ON m.ship_mode   = s.ship_mode;
+    GET DIAGNOSTICS v_linhas = ROW_COUNT;
+    RAISE NOTICE 'fact_sales: % linhas inseridas', v_linhas;
+
+    -- (e) confere se algum JOIN descartou linhas em silêncio
+    SELECT COUNT(*) INTO v_fato    FROM dw.fact_sales;
+    SELECT COUNT(*) INTO v_staging FROM staging.sales;
+    IF v_fato <> v_staging THEN
+        RAISE EXCEPTION 'Carga incompleta: fact_sales tem % linhas e staging.sales tem %',
+            v_fato, v_staging;
+    END IF;
+    RAISE NOTICE 'Carga conferida: % linhas na fato e na staging', v_fato;
+END;
+$$;
+
+-- EXECUTA A PROCEDURE PARA CARREGAR O DW
+CALL dw.carrega_dw();
+
+-- CONSULTA PARA CONFERIR O RESULTADO DA CARGA
+SELECT 'dim_customer' AS tabela, COUNT(*) AS linhas FROM dw.dim_customer
+UNION ALL
+SELECT 'dim_product',  COUNT(*) FROM dw.dim_product
+UNION ALL
+SELECT 'dim_location', COUNT(*) FROM dw.dim_location
+UNION ALL
+SELECT 'dim_ship_mode', COUNT(*) FROM dw.dim_ship_mode
+UNION ALL
+SELECT 'fact_sales',   COUNT(*) FROM dw.fact_sales;
+
+-- Resultado:
+--   dim_customer  = 793
+--   dim_product   = 1861
+--   dim_location  = 628
+--   dim_ship_mode = 4
+--   fact_sales    = 9800
