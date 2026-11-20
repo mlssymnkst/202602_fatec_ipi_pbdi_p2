@@ -1,0 +1,330 @@
+{
+    "Job": {
+        "Name": "job-superstore-etl-2041382521003",
+        "JobMode": "VISUAL",
+        "JobRunQueuingEnabled": false,
+        "Description": "",
+        "Role": "arn:aws:iam::208806792083:role/LabRole",
+        "CreatedOn": "2026-11-20T14:03:21.731000+00:00",
+        "LastModifiedOn": "2026-11-20T14:35:34.604000+00:00",
+        "ExecutionProperty": {
+            "MaxConcurrentRuns": 1
+        },
+        "Command": {
+            "Name": "glueetl",
+            "ScriptLocation": "s3://aws-glue-assets-208806792083-us-east-1/scripts/job-superstore-etl-2041382521003.py",
+            "PythonVersion": "3"
+        },
+        "DefaultArguments": {
+            "--enable-metrics": "",
+            "--enable-spark-ui": "true",
+            "--spark-event-logs-path": "s3://aws-glue-assets-208806792083-us-east-1/sparkHistoryLogs/",
+            "--enable-job-insights": "true",
+            "--enable-observability-metrics": "true",
+            "--conf": "spark.eventLog.rolling.enabled=true --conf spark.sql.catalog.glue_catalog.glue.skip-name-validation=true",
+            "--enable-glue-datacatalog": "",
+            "--enable-continuous-cloudwatch-log": "true",
+            "--job-bookmark-option": "job-bookmark-disable",
+            "--job-language": "python",
+            "--TempDir": "s3://aws-glue-assets-208806792083-us-east-1/temporary/"
+        },
+        "Connections": {
+            "Connections": [
+                "conn-rds-superstore-2041382521003"
+            ]
+        },
+        "MaxRetries": 0,
+        "AllocatedCapacity": 2,
+        "Timeout": 10,
+        "MaxCapacity": 2.0,
+        "WorkerType": "G.1X",
+        "NumberOfWorkers": 2,
+        "GlueVersion": "6.0",
+        "CodeGenConfigurationNodes": {
+            "node-1795183582135": {
+                "PostgreSQLCatalogTarget": {
+                    "Name": "PostgreSQL",
+                    "Inputs": [
+                        "node-1795183517551"
+                    ],
+                    "Database": "superstore_catalog",
+                    "Table": "superstore_dw_staging_sales"
+                }
+            },
+            "node-1795183351042": {
+                "CatalogSource": {
+                    "Name": "AWS Glue Data Catalog",
+                    "Database": "superstore_catalog",
+                    "Table": "bruto",
+                    "PartitionPredicate": ""
+                }
+            },
+            "node-1795183400056": {
+                "ApplyMapping": {
+                    "Name": "Change Schema",
+                    "Inputs": [
+                        "node-1795183351042"
+                    ],
+                    "Mapping": [
+                        {
+                            "ToKey": "row_id",
+                            "FromPath": [
+                                "row id"
+                            ],
+                            "FromType": "long",
+                            "ToType": "long",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "order_id",
+                            "FromPath": [
+                                "order id"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "order_date",
+                            "FromPath": [
+                                "order date"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "ship_date",
+                            "FromPath": [
+                                "ship date"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "ship_mode",
+                            "FromPath": [
+                                "ship mode"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "customer_id",
+                            "FromPath": [
+                                "customer id"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "customer_name",
+                            "FromPath": [
+                                "customer name"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "segment",
+                            "FromPath": [
+                                "segment"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "country",
+                            "FromPath": [
+                                "country"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "city",
+                            "FromPath": [
+                                "city"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "state",
+                            "FromPath": [
+                                "state"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "postal_code",
+                            "FromPath": [
+                                "postal code"
+                            ],
+                            "FromType": "long",
+                            "ToType": "long",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "region",
+                            "FromPath": [
+                                "region"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "product_id",
+                            "FromPath": [
+                                "product id"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "category",
+                            "FromPath": [
+                                "category"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "sub_category",
+                            "FromPath": [
+                                "sub-category"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "product_name",
+                            "FromPath": [
+                                "product name"
+                            ],
+                            "FromType": "string",
+                            "ToType": "string",
+                            "Dropped": false
+                        },
+                        {
+                            "ToKey": "sales",
+                            "FromPath": [
+                                "sales"
+                            ],
+                            "FromType": "double",
+                            "ToType": "double",
+                            "Dropped": false
+                        }
+                    ]
+                }
+            },
+            "node-1795183517551": {
+                "SparkSQL": {
+                    "Name": "SQL Query",
+                    "Inputs": [
+                        "node-1795183400056"
+                    ],
+                    "SqlQuery": "SELECT\r\n  CAST(trim(row_id) AS INT)                      AS row_id,\r\n  trim(order_id)                                 AS order_id,\r\n  to_date(trim(order_date), 'dd/MM/yyyy')        AS order_date,\r\n  to_date(trim(ship_date),  'dd/MM/yyyy')        AS ship_date,\r\n  trim(ship_mode)                                AS ship_mode,\r\n  trim(customer_id)                              AS customer_id,\r\n  trim(customer_name)                            AS customer_name,\r\n  trim(segment)                                  AS segment,\r\n  trim(country)                                  AS country,\r\n  trim(city)                                     AS city,\r\n  trim(state)                                    AS state,\r\n  coalesce(nullif(trim(postal_code), ''), 'N/D') AS postal_code,\r\n  trim(region)                                   AS region,\r\n  trim(product_id)                               AS product_id,\r\n  trim(category)                                 AS category,\r\n  trim(sub_category)                             AS sub_category,\r\n  trim(product_name)                             AS product_name,\r\n  CAST(trim(sales) AS DECIMAL(12,2))             AS sales\r\nFROM myDataSource",
+                    "SqlAliases": [
+                        {
+                            "From": "node-1795183400056",
+                            "Alias": "myDataSource"
+                        }
+                    ],
+                    "OutputSchemas": [
+                        {
+                            "Columns": [
+                                {
+                                    "Name": "row_id",
+                                    "Type": "bigint"
+                                },
+                                {
+                                    "Name": "order_id",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "order_date",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "ship_date",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "ship_mode",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "customer_id",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "customer_name",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "segment",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "country",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "city",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "state",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "postal_code",
+                                    "Type": "bigint"
+                                },
+                                {
+                                    "Name": "region",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "product_d",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "category",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "sub_category",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "product_name",
+                                    "Type": "string"
+                                },
+                                {
+                                    "Name": "sales",
+                                    "Type": "double"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "ExecutionClass": "STANDARD"
+    }
+}

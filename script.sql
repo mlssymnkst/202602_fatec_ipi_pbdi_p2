@@ -21,3 +21,19 @@ CREATE TABLE IF NOT EXISTS staging.sales (
     product_name  VARCHAR(200)   NOT NULL,
     sales         NUMERIC(12,2)  NOT NULL
 );
+
+-- ENUNCIADO 10
+SELECT COUNT(*)                                        AS linhas,
+       SUM(sales)                                      AS soma_sales,
+       MIN(order_date)                                 AS menor_data_pedido,
+       MAX(ship_date)                                  AS maior_data_envio,
+       COUNT(*) FILTER (WHERE postal_code = 'N/D')     AS codigos_postais_nd,
+       COUNT(*) FILTER (WHERE ship_date < order_date)  AS envio_antes_do_pedido
+FROM staging.sales;
+-- Resultado (preencher com a execução real):
+--   linhas = 9800
+--   soma_sales = 2261536.97
+--   menor_data_pedido = 2015-01-03
+--   maior_data_envio = 2019-01-05
+--   codigos_postais_nd = 11
+--   envio_antes_do_pedido = 0

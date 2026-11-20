@@ -1,0 +1,14 @@
+{
+    "logStreams": [
+        {
+            "logStreamName": "jr_eace5f69eb758b4183331ed3318339dc4dc279921650ece283e1f3e1e07c840e",
+            "creationTime": 1795185029001,
+            "firstEventTimestamp": 1795185028909,
+            "lastEventTimestamp": 1795185028909,
+            "lastIngestionTime": 1795185029010,
+            "uploadSequenceToken": "49039859693918641641515468574087113918823332759227330457",
+            "arn": "arn:aws:logs:us-east-1:208806792083:log-group:/aws-glue/jobs/output:log-stream:jr_eace5f69eb758b4183331ed3318339dc4dc279921650ece283e1f3e1e07c840e",
+            "storedBytes": 0
+        }
+    ]
+}
