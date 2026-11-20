@@ -25,3 +25,10 @@
 ### Enunciado 6
 - Por que o S3 usa endpoint de gateway: O S3 usa esse tipo de endpoint porque ele permite que a comunicação com o serviço aconteça diretamente pela rede interna da AWS, sem precisar passar pela internet. Além disso, não gera custo adicional por hora. Já o STS e o Secrets Manager utilizam outro tipo de endpoint, que cria uma conexão privada dentro da rede.
 - Se o DNS privado ficar desligado: Se o DNS privado estiver desligado, o serviço será acessado pelo endereço público, em vez do endereço privado. Como a nossa sub-rede não tem acesso à internet por meio de um NAT Gateway, o job não consegue se conectar ao serviço e acaba apresentando um erro de tempo esgotado (timeout).
+
+### Enunciado 7
+O crawler leu o CSV por amostragem e atribuiu:
+- row id: bigint, porque todos os valores são inteiros.
+- postal code: bigint, porque todos os valores preenchidos são inteiros; as linhas sem código postal viram nulo. Efeito colateral: códigos aparecem com 4 dígitos no próprio arquivo (429 linhas).
+- sales: double, porque os valores têm casas decimais.
+As demais colunas ficaram como string, inclusive as datas, pois o formato dd/mm/aaaa não é reconhecido como data pelo crawler.

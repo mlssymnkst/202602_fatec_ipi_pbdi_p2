@@ -1,0 +1,101 @@
+{
+    "Crawlers": [
+        {
+            "Name": "crawler-staging-2041382521003",
+            "Role": "LabRole",
+            "Targets": {
+                "S3Targets": [],
+                "JdbcTargets": [
+                    {
+                        "ConnectionName": "conn-rds-superstore-2041382521003",
+                        "Path": "superstore_dw/staging/sales",
+                        "Exclusions": [],
+                        "EnableAdditionalMetadata": []
+                    }
+                ],
+                "MongoDBTargets": [],
+                "DynamoDBTargets": [],
+                "CatalogTargets": [],
+                "DeltaTargets": [],
+                "IcebergTargets": [],
+                "HudiTargets": []
+            },
+            "DatabaseName": "superstore_catalog",
+            "Classifiers": [],
+            "RecrawlPolicy": {
+                "RecrawlBehavior": "CRAWL_EVERYTHING"
+            },
+            "SchemaChangePolicy": {
+                "UpdateBehavior": "UPDATE_IN_DATABASE",
+                "DeleteBehavior": "DEPRECATE_IN_DATABASE"
+            },
+            "LineageConfiguration": {
+                "CrawlerLineageSettings": "DISABLE"
+            },
+            "State": "READY",
+            "CrawlElapsedTime": 0,
+            "CreationTime": "2026-11-20T13:48:27+00:00",
+            "LastUpdated": "2026-11-20T13:48:46+00:00",
+            "LastCrawl": {
+                "Status": "SUCCEEDED",
+                "LogGroup": "/aws-glue/crawlers",
+                "LogStream": "crawler-staging-2041382521003",
+                "MessagePrefix": "6ad82abc-1644-4df4-ba26-ae27342fe119",
+                "StartTime": "2026-11-20T13:48:39+00:00"
+            },
+            "Version": 2,
+            "LakeFormationConfiguration": {
+                "UseLakeFormationCredentials": false,
+                "AccountId": ""
+            }
+        },
+        {
+            "Name": "crawler-superstore-2041382521003",
+            "Role": "LabRole",
+            "Targets": {
+                "S3Targets": [
+                    {
+                        "Path": "s3://pbdi-2041382521003-superstore/bruto/",
+                        "Exclusions": []
+                    }
+                ],
+                "JdbcTargets": [],
+                "MongoDBTargets": [],
+                "DynamoDBTargets": [],
+                "CatalogTargets": [],
+                "DeltaTargets": [],
+                "IcebergTargets": [],
+                "HudiTargets": []
+            },
+            "DatabaseName": "superstore_catalog",
+            "Classifiers": [],
+            "RecrawlPolicy": {
+                "RecrawlBehavior": "CRAWL_EVERYTHING"
+            },
+            "SchemaChangePolicy": {
+                "UpdateBehavior": "UPDATE_IN_DATABASE",
+                "DeleteBehavior": "DEPRECATE_IN_DATABASE"
+            },
+            "LineageConfiguration": {
+                "CrawlerLineageSettings": "DISABLE"
+            },
+            "State": "READY",
+            "CrawlElapsedTime": 0,
+            "CreationTime": "2026-11-20T12:31:05+00:00",
+            "LastUpdated": "2026-11-20T12:36:43+00:00",
+            "LastCrawl": {
+                "Status": "SUCCEEDED",
+                "LogGroup": "/aws-glue/crawlers",
+                "LogStream": "crawler-superstore-2041382521003",
+                "MessagePrefix": "7d5b0d7c-f39e-4b72-9e43-dcfbc074b197",
+                "StartTime": "2026-11-20T12:37:05+00:00"
+            },
+            "Version": 2,
+            "Configuration": "{\"Version\":1.0,\"CreatePartitionIndex\":true}",
+            "LakeFormationConfiguration": {
+                "UseLakeFormationCredentials": false,
+                "AccountId": ""
+            }
+        }
+    ]
+}

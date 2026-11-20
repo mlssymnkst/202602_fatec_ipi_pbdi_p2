@@ -1,0 +1,22 @@
+{
+    "Connection": {
+        "Name": "conn-rds-superstore-2041382521003",
+        "Description": "",
+        "ConnectionType": "JDBC",
+        "ConnectionProperties": {
+            "JDBC_CONNECTION_URL": "jdbc:postgresql://dw-superstore-2041382521003.czdnv2wcopr2.us-east-1.rds.amazonaws.com:5432/superstore_dw",
+            "KAFKA_SSL_ENABLED": "false",
+            "USERNAME": "postgres"
+        },
+        "PhysicalConnectionRequirements": {
+            "SubnetId": "subnet-099f7545dea059c1f",
+            "SecurityGroupIdList": [
+                "sg-0cb2a3d25ab9bba4c"
+            ],
+            "AvailabilityZone": "us-east-1a"
+        },
+        "CreationTime": "2026-11-20T13:45:26.197000+00:00",
+        "LastUpdatedTime": "2026-11-20T13:45:26.197000+00:00",
+        "ConnectionSchemaVersion": 1
+    }
+}
